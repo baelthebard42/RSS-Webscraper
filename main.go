@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	_ "fmt"
 	"log"
 	"net/http"
 	"os"
