@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/baelthebard42/RSS-Webscraper/internal/auth"
 	"github.com/baelthebard42/RSS-Webscraper/internal/database"
 	"github.com/google/uuid"
 )
@@ -44,19 +43,7 @@ func (apiCfg *apiConfig) handleCreateUser(w http.ResponseWriter, r *http.Request
 
 }
 
-func (apiCfg *apiConfig) handlerGetUserByAPI(w http.ResponseWriter, r *http.Request) {
+func (apiCfg *apiConfig) handlerGetUserByAPI(w http.ResponseWriter, r *http.Request, user database.User) {
 
-	a_key, err := auth.GetAPIKey(r.Header)
-	if err != nil {
-		respondWithError(w, 400, fmt.Sprint("Auth error", err))
-		return
-	}
-
-	user, err := apiCfg.DB.GetUserByAPIKey(r.Context(), a_key)
-
-	if err != nil {
-		respondWithError(w, 400, fmt.Sprint("Error retrieving user", err))
-		return
-	}
 	respondWithJSON(w, 200, dbUsertoUser(user))
 }
