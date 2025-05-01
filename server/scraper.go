@@ -3,8 +3,12 @@ package main
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
-	_ "strings"
+
+	"strconv"
+	"strings"
+
 	"sync"
 	"time"
 
@@ -65,11 +69,11 @@ func scrapeFeed(db *database.Queries, wg *sync.WaitGroup, feed database.Feed) {
 			description.Valid = true
 		}
 
-		t, err := time.Parse(time.RFC1123Z, item.PubDate)
+		pubTime, err := parseRSSTime(item.PubDate)
 
 		if err != nil {
 			log.Printf("couldnt parse date %v with err %s", item.PubDate, err)
-			continue
+			pubTime = time.Now().UTC()
 		}
 
 		_, err = db.CreatePost(context.Background(), database.CreatePostParams{
@@ -78,18 +82,49 @@ func scrapeFeed(db *database.Queries, wg *sync.WaitGroup, feed database.Feed) {
 			UpdatedAt:   time.Now().UTC(),
 			Title:       item.Title,
 			Description: description,
-			PublishedAt: t,
+			PublishedAt: pubTime,
 			Url:         item.Link,
 			FeedID:      feed.ID,
 		})
 		if err != nil {
-			//	if strings.Contains(err.Error(), "duplicate key") {
-			//	continue
-			//}
+			if strings.Contains(err.Error(), "duplicate key") {
+				continue
+			}
 			log.Println("failed to create post", err)
 			return
 		}
 	}
 	log.Printf("Feed %s collected, %v posts found", feed.Name, len(rssFeed.Channel.Item))
 
+}
+
+func parseRSSTime(dateStr string) (time.Time, error) {
+	if dateStr == "" {
+		return time.Time{}, fmt.Errorf("empty date string")
+	}
+
+	formats := []string{
+		time.RFC1123Z, // "Mon, 02 Jan 2006 15:04:05 -0700" (most common)
+		time.RFC1123,  // "Mon, 02 Jan 2006 15:04:05 MST"
+		time.RFC822Z,  // "02 Jan 06 15:04 -0700"
+		time.RFC822,   // "02 Jan 06 15:04 MST"
+		time.RFC3339,  // "2006-01-02T15:04:05Z07:00"
+		"02 Jan 2006", // Simple date format
+		"2006-01-02",  // ISO date
+		"01/02/2006",  // US date format
+		"Jan 2, 2006", // "Month day, year" format
+	}
+
+	for _, format := range formats {
+		t, err := time.Parse(format, dateStr)
+		if err == nil {
+			return t, nil
+		}
+	}
+
+	if unixTime, err := strconv.ParseInt(dateStr, 10, 64); err == nil {
+		return time.Unix(unixTime, 0), nil
+	}
+
+	return time.Time{}, fmt.Errorf("could not parse date: %s", dateStr)
 }

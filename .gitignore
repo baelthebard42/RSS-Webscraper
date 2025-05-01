@@ -2,3 +2,4 @@
 vendor/
 RSS-Webscraper.exe
 venv/
+UI/node_modules
