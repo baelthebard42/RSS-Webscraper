@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/baelthebard42/RSS-Webscraper/internal/database"
 	"github.com/go-chi/chi"
@@ -38,9 +39,13 @@ func main() {
 		log.Fatal("Cant connect to db", err)
 	}
 
+	db := database.New(connection)
+
 	apiCfg := apiConfig{ // this api handler can be passed to our endpoints to access the database
-		DB: database.New(connection),
+		DB: db,
 	}
+
+	go startScraping(db, 10, time.Minute)
 
 	//fmt.Println("Using Port", portString)
 
@@ -66,6 +71,8 @@ func main() {
 	v1Router.Post("/feed-follow", apiCfg.middlewareAuth(apiCfg.handleCreateFeedFollow))
 	v1Router.Get("/feed-follows", apiCfg.middlewareAuth(apiCfg.handleGetFeedFollow))
 	v1Router.Delete("/delete-feed-follows/{feedfollow_id}", apiCfg.middlewareAuth(apiCfg.handleDeleteFeedFollow))
+	v1Router.Get("/get-user-posts", apiCfg.middlewareAuth(apiCfg.handleGetUserFeeds))
+
 	router.Mount("/v1", v1Router)
 
 	server := &http.Server{

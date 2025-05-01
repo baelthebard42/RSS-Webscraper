@@ -1,3 +1,4 @@
 .env
 vendor/
 RSS-Webscraper.exe
+venv/
