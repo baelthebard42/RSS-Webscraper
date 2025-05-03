@@ -18,6 +18,9 @@ cd RSS-Webscraper
 ```
 ### UI
 
+![image](https://github.com/user-attachments/assets/129bf2e8-29b1-48f5-9257-6440f824df7e)
+
+
 1.  **Navigate to the UI directory:**
     ```bash
     cd UI
