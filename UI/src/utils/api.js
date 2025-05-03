@@ -18,6 +18,7 @@ export const getUser = async (apiKey) => {
       'Authorization': `ApiKey ${apiKey}`,
     },
   });
+ // console.log("This is working")
   return response.json();
 };
 
@@ -51,12 +52,15 @@ export const createFeedFollow = async (feedId, apiKey) => {
 };
 
 export const getFeedFollows = async (apiKey) => {
+ // console.log(apiKey)
   const response = await fetch(`${API_BASE}/feed-follows`, {
     headers: {
       'Authorization': `ApiKey ${apiKey}`,
     },
   });
+ // console.log(response.json())
   return response.json();
+
 };
 
 export const deleteFeedFollow = async (feedFollowId, apiKey) => {
@@ -70,11 +74,12 @@ export const deleteFeedFollow = async (feedFollowId, apiKey) => {
 };
 
 export const getUserPosts = async (apiKey) => {
+  console.log("Starting to fetch post")
   const response = await fetch(`${API_BASE}/get-user-posts`, {
     headers: {
       'Authorization': `ApiKey ${apiKey}`,
     },
   });
-  console.log(response.json())
+  // console.log(response.json())
   return response.json();
 };

@@ -42,7 +42,7 @@ export default function Dashboard({ user, activeTab, setActiveTab }) {
       await api.createFeedFollow(feedId, user.apiKey);
       const follows = await api.getFeedFollows(user.apiKey);
       setFollowedFeeds(follows);
-      // Refresh posts after following new feed
+
       const updatedPosts = await api.getUserPosts(user.apiKey);
       setPosts(updatedPosts);
     } catch (err) {

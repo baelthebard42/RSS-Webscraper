@@ -13,11 +13,13 @@ export const useApi = () => {
     }
   }, [apiKey]);
 
+ 
+
   const fetchUser = async () => {
     try {
       setLoading(true);
       const userData = await api.getUser(apiKey);
-      setUser(userData);
+      setUser({ ...userData, apiKey }); 
       setError(null);
     } catch (err) {
       setError('Failed to fetch user data');
@@ -28,7 +30,9 @@ export const useApi = () => {
   };
 
   const login = (key) => {
+  //  console.log("hey i am logged in")
     localStorage.setItem('apiKey', key);
+  //  console.log(localStorage.getItem('apiKey'))
     setApiKey(key);
   };
 
